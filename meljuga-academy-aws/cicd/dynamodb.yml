@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  DynamoDBTableGlobalName:
+    Description: 'DynamoDB table for global data'
+    Type: 'String'
+
+  DynamoDBTableJobsName:
+    Description: 'DynamoDB table for jobs'
+    Type: 'String'
+
+Resources:
+  DynamoDBTableGlobal:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: !Ref DynamoDBTableGlobalName
+      AttributeDefinitions:
+        - AttributeName: 'name'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'name'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  
+  DynamoDBTableJobs:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: !Ref DynamoDBTableJobsName
+      AttributeDefinitions:
+        - AttributeName: 'table_name'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'table_name'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+

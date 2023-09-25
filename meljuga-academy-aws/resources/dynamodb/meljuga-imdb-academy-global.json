@@ -1,0 +1,11 @@
+{
+    "name" : "imdb-rest-api",
+    "host" : "ogj9fvz5cf.execute-api.eu-central-1.amazonaws.com",
+    "jobs" : "['title_ratings','title_crew','name_basics','title_basics','title_principals','title_episode' ]",
+    "method" : "https://",
+    "partitions_uri" : "/partitions/{table_name}",
+    "port" : "",
+    "prefix" : "v1/imdb",
+    "tz" : "Europe/Zagreb",
+    "url" : "{method}{host}{port}/{prefix}"
+}

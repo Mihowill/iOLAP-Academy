@@ -1,0 +1,4 @@
+INFO:root:Task title_ratings completed successfully.
+INFO:root:Saved data to datalake for table title_ratings.
+INFO:botocore.credentials:Credentials found in config file: ~/.aws/config
+INFO:botocore.credentials:Credentials found in config file: ~/.aws/config

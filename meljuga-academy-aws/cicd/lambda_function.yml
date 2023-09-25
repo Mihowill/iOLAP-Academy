@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters: 
+  MeljugaLambdaFunctionParam:
+    Type: 'String'
+    Description: 'Ingest S3 json template into DynamoDB'
+
+Resources:
+  MeljugaLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref MeljugaLambdaFunctionParam
+      Handler: 'lambda_function.lambda_handler' 
+      Role: 'arn:aws:iam::456582705970:role/service-role/meljuga-academy-lambda-role-soufhuot' 
+      Code: 
+        S3Bucket: 'meljuga-academy-scripts'
+        S3Key: 'meljuga_lambda_code.zip'
+      Runtime: 'python3.10'
+      Timeout: 5 
+      MemorySize: 128 

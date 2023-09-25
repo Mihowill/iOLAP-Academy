@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  S3BucketDataParam:
+    Description: 'S3 bucket for data'
+    Type: 'String'
+
+  S3BucketScriptsParam:
+    Description: 'S3 bucket for scripts'
+    Type: 'String'
+
+Resources:
+  S3BucketData:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref S3BucketDataParam
+
+          
+  S3BucketScripts:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref S3BucketScriptsParam
+
+
+

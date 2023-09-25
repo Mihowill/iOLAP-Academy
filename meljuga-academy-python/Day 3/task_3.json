@@ -1,0 +1,37 @@
+[
+  {
+    "Date": "2023-01-01",
+    "Invoice Number": 73984,
+    "Customer": "John Wayne",
+    "Invoiced Amount": 500.0,
+    "Invoiced Quantity": 2.0
+  },
+  {
+    "Date": "2023-02-28",
+    "Invoice Number": 43210,
+    "Customer": "Stuart Smith",
+    "Invoiced Amount": 1200.0,
+    "Invoiced Quantity": 1.0
+  },
+  {
+    "Date": "2023-04-12",
+    "Invoice Number": 54123,
+    "Customer": "Marge Sterling",
+    "Invoiced Amount": 860.0,
+    "Invoiced Quantity": 3.0
+  },
+  {
+    "Date": "2023-05-06",
+    "Invoice Number": 51341,
+    "Customer": "Michael Johnson",
+    "Invoiced Amount": 125.0,
+    "Invoiced Quantity": 3.5
+  },
+  {
+    "Date": "2023-06-30",
+    "Invoice Number": 43210,
+    "Customer": "Sarah Thompson",
+    "Invoiced Amount": 326.0,
+    "Invoiced Quantity": 1.5
+  }
+]

@@ -1,0 +1,94 @@
+{
+  "version": "17.0.0",
+  "artifacts": {
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    },
+    "meljuga-AcademyS3Stack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "meljuga-AcademyS3Stack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "meljuga-AcademyS3Stack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://456582705970/eu-central-1",
+      "properties": {
+        "templateFile": "meljuga-AcademyS3Stack.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::456582705970:role/cdk-hnb659fds-deploy-role-456582705970-eu-central-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::456582705970:role/cdk-hnb659fds-cfn-exec-role-456582705970-eu-central-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-456582705970-eu-central-1/0b5fde71d0db256fb1c13774ff1fa9787f54d80ae0349bb6473913a98b12ea84.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "meljuga-AcademyS3Stack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::456582705970:role/cdk-hnb659fds-lookup-role-456582705970-eu-central-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "meljuga-AcademyS3Stack.assets"
+      ],
+      "metadata": {
+        "/meljuga-AcademyS3Stack/meljuga-academy-cdk-1/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademycdk13B374C6F"
+          }
+        ],
+        "/meljuga-AcademyS3Stack/meljuga-academy-cdk-2/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademycdk269F4CDA4"
+          }
+        ],
+        "/meljuga-AcademyS3Stack/meljuga-academy-cdk-3/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademycdk3E38A933C"
+          }
+        ],
+        "/meljuga-AcademyS3Stack/meljuga-academy-cdk-4/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademycdk46A5BF9C0"
+          }
+        ],
+        "/meljuga-AcademyS3Stack/meljuga-academy-cdk-5/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademycdk5BC08EC94"
+          }
+        ],
+        "/meljuga-AcademyS3Stack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/meljuga-AcademyS3Stack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/meljuga-AcademyS3Stack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "meljuga-AcademyS3Stack"
+    }
+  }
+}

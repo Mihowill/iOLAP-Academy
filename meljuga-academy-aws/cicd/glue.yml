@@ -1,0 +1,137 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  S3BucketData:
+    Type: String
+  S3BucketScripts:
+    Type: String
+  DynamoDBTableName:
+    Type: String
+  GlueJobName:
+    Type: String
+  GlueJobRoleName:
+    Type: String
+  GlueDatabaseLandingName:
+    Type: String
+  GlueDatabaseDatalakeName:
+    Type: String
+  GlueCrawlerLandingTriggerName:
+    Type: String
+  GlueCrawlerLandingName:
+    Type: String
+  GlueCrawlerDatalakeTriggerName:
+    Type: String
+  GlueCrawlerDatalakeName:
+    Type: String
+  GlueJobTriggerName:
+    Type: String  
+
+Resources:
+  GlueJobRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref GlueJobRoleName
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "glue.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: GlueJobPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: 
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                Resource: 
+                  - !Sub "arn:aws:s3:::${S3BucketData}/*"
+                  - !Sub "arn:aws:s3:::${S3BucketScripts}/*"
+              - Effect: "Allow"
+                Action:
+                  - "glue:StartJobRun"
+                  - "glue:GetJobs"
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - "dynamodb:GetItem"
+                  - "dynamodb:Query"
+                  - "dynamodb:Scan"
+                Resource: 
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoDBTableName}"
+
+  GlueWorkflow:
+    Type: "AWS::Glue::Workflow"
+    Properties:
+      Name: !Sub "${GlueJobName}-workflow"
+      Description: "Workflow to orchestrate Glue jobs and crawlers"
+
+  LandingDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: !Ref GlueDatabaseLandingName
+        Description: "Landing Database"
+
+  DataLakeDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: !Ref GlueDatabaseDatalakeName
+        Description: "DataLake Database"
+
+  LandingCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Role: !GetAtt GlueJobRole.Arn
+      DatabaseName: !Ref GlueDatabaseLandingName
+      Name: !Ref GlueCrawlerLandingName
+      Targets:
+        S3Targets:
+          - Path: !Sub "s3://${S3BucketData}/landing/"
+      Schedule: 
+        ScheduleExpression: "cron(0 7 * * ? *)"
+
+  DataLakeCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Role: !GetAtt GlueJobRole.Arn
+      DatabaseName: !Ref GlueDatabaseDatalakeName
+      Name: !Ref GlueCrawlerDatalakeName
+      Targets:
+        S3Targets:
+          - Path: !Sub "s3://${S3BucketData}/datalake/"
+      Schedule:  
+        ScheduleExpression: "cron(0 7 * * ? *)"
+
+  GlueETLJob:
+    Type: AWS::Glue::Job
+    Properties:
+      Role: !GetAtt GlueJobRole.Arn
+      Command:
+        Name: "glueetl"
+        ScriptLocation: !Sub "s3://${S3BucketScripts}/glueetl_datalake.py"
+        PythonVersion: "3"
+      DefaultArguments:
+        "--TempDir": !Sub "s3://${S3BucketData}/temp/"
+        "--job-language": "python"
+      MaxRetries: 0
+      Name: !Ref GlueJobName
+      Timeout: 480
+      GlueVersion: '4.0'
+
+  GlueJobTrigger:
+    Type: AWS::Glue::Trigger
+    Properties:
+      Actions:
+        - JobName: !Ref GlueETLJob
+          Arguments:
+            "--job-bookmark-option": "job-bookmark-enable"
+      Type: "SCHEDULED"
+      Schedule: "cron(0 8 * * ? *)"
+
+  

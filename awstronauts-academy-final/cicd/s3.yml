@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  DataS3BucketName:
+    Type: String
+
+Resources:
+  S3BucketData:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Ref DataS3BucketName

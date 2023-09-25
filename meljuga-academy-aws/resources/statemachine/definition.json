@@ -1,0 +1,33 @@
+{
+    "Comment": "I hope this works",
+    "StartAt": "Scan",
+    "States": {
+      "Scan": {
+        "Type": "Task",
+        "Parameters": {
+          "TableName": "meljuga-academy-jobs"
+        },
+        "Resource": "arn:aws:states:::aws-sdk:dynamodb:scan",
+        "Next": "Map"
+      },
+      "Map": {
+        "Type": "Map",
+        "ItemsPath": "$.Items",
+        "Iterator": {
+          "StartAt": "Lambda Invoke",
+          "States": {
+            "Lambda Invoke": {
+              "Type": "Task",
+              "Resource": "${LambdaARN}",
+              "InputPath": "$",
+              "End": true
+            }
+          }
+        },
+        "Next": "Success"
+      },
+      "Success": {
+        "Type": "Succeed"
+      }
+    }
+}

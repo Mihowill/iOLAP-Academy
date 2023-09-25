@@ -1,0 +1,150 @@
+Parameters: 
+  LambdaFunctionName:
+    Type: String
+  LambdaFunctionRoleName:
+    Type: String
+  LambdaFunctionPolicyName:
+    Type: String
+  LambdaFunctionRedshiftDatalakeName:
+    Type: String
+  LambdaUploadUNIXT:
+    Type: String
+
+Resources:
+  LambdaFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref LambdaFunctionRoleName
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  LambdaFunctionPolicyS3:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "${LambdaFunctionName}PolicyS3_awstronauts_bucket"
+      Roles:
+        - !Ref LambdaFunctionRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+              - s3:ListObjectsV2
+              - s3:ListObjects
+            Resource:
+              - "arn:aws:s3:::awstronauts-academy-bucket/*"
+              - "arn:aws:s3:::awstronauts-academy-bucket"
+  
+  LambdaFunctionPolicyComprehendTranslate:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "${LambdaFunctionName}Policy_awstronauts_comrepehend_translate"
+      Roles:
+        - !Ref LambdaFunctionRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - comprehend:DetectSentiment
+              - comprehend:BatchDetectSentiment
+              - comprehend:BatchDetectTargetedSentiment
+              - comprehend:DetectTargetedSentiment
+              - comprehend:StartSentimentDetectionJob
+              - comprehend:StartTargetedSentimentDetectionJob
+              - comprehend:StopSentimentDetectionJob
+              - comprehend:StopTargetedSentimentDetectionJob
+              - comprehend:DetectDominantLanguage
+              - translate:TranslateText
+            Resource: "*"
+  
+  LambdaFunctionPolicyLogs:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "${LambdaFunctionName}Policy_awstronauts_logs"
+      Roles:
+        - !Ref LambdaFunctionRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - "arn:aws:logs:::*"
+
+  LambdaFunctionPolicySecret:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "${LambdaFunctionName}Policy_awstronauts_secret"
+      Roles:
+        - !Ref LambdaFunctionRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - "arn:aws:lambda:eu-central-1:456582705970:function:awstronauts-academy-lambda-redshift-datalake"
+              - "arn:aws:lambda:eu-central-1:456582705970:function:awstronauts-academy-lambda"
+              - "arn:aws:secretsmanager:eu-central-1:456582705970:secret:awstronauts-academy-final-redshift-key-Pklvq0"
+              - "arn:aws:logs:::*"
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties: 
+      Code: 
+        S3Bucket: awstronauts-academy-bucket
+        S3Key: !Sub "lambda/${LambdaUploadUNIXT}/lambda.zip"
+      Description: Lambda function that parses data into Amazon Translate, then into AWS Comprehend for sentiment score
+      FunctionName: !Ref LambdaFunctionName
+      Handler: lambda.lambda_handler
+      MemorySize: 1024
+      Role: !GetAtt LambdaFunctionRole.Arn
+      Runtime: python3.8
+      Timeout: 900
+      Layers:
+        - arn:aws:lambda:eu-central-1:336392948345:layer:AWSSDKPandas-Python38:9
+        - arn:aws:lambda:eu-central-1:898466741470:layer:psycopg2-py38:1
+      Environment:
+        Variables:
+          REDSHIFT_HOST: admin-academy-redshift.c76boardkpkb.eu-central-1.redshift.amazonaws.com
+          REDSHIFT_DB: twitter_redshift_db
+          REDSHIFT_USER: admin
+          REDSHIFT_PASSWORD: Academy2023!
+          REDSHIFT_PORT: 5439
+          OUTPUT_BUCKET: awstronauts-academy-bucket
+          OUTPUT_KEY: sentiment/results/sentiment_results.json
+
+
+  LambdaFunctionRedshiftDatalake:
+    Type: AWS::Lambda::Function
+    Properties: 
+      Code: 
+        S3Bucket: awstronauts-academy-bucket
+        S3Key: !Sub "lambda/${LambdaUploadUNIXT}/lambda_redshift_datalake.zip"       
+      Description: Lambda function creates schema in Redshift
+      FunctionName: !Ref LambdaFunctionRedshiftDatalakeName
+      Handler: lambda_redshift_datalake.lambda_handler
+      MemorySize: 1024
+      Role: !GetAtt LambdaFunctionRole.Arn
+      Layers: ['arn:aws:lambda:eu-central-1:898466741470:layer:psycopg2-py38:1']
+      Runtime: python3.8
+      Timeout: 900
+

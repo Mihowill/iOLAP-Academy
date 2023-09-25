@@ -1,0 +1,46 @@
+[
+    {
+      "table_name": "title_principals",
+      "params": {
+        "min_ingestion_dttm": "null"
+      },
+      "uri": "/dataset/title_principals"
+    },
+    {
+        "table_name": "title_basics",
+        "params": {
+          "min_ingestion_dttm": "null"
+        },
+        "uri": "/dataset/title_basics"
+      },
+      {
+        "table_name": "title_ratings",
+        "params": {
+          "min_ingestion_dttm": "null"
+        },
+        "uri": "/dataset/title_ratings"
+      },
+      {
+        "table_name": "name_basics",
+        "params": {
+          "min_ingestion_dttm": "null"
+        },
+        "uri": "/dataset/name_basics"
+      },
+      {
+        "table_name": "title_crew",
+        "params": {
+          "min_ingestion_dttm": "null"
+        },
+        "uri": "/dataset/title_crew"
+      },
+      {
+        "table_name": "title_episode",
+        "params": {
+          "min_ingestion_dttm": "null"
+        },
+        "uri": "/dataset/title_episode"
+      }
+]
+             
+   

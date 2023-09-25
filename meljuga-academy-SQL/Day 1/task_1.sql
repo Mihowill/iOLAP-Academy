@@ -1,0 +1,1 @@
+SELECT * FROM "name_basics", "title_basics", "title_crew", "title_episode", "title_principals", "title_ratings";

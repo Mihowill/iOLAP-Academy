@@ -1,0 +1,157 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  S3BucketData:
+    Type: String
+    Description: S3 bucket for data
+  S3BucketScripts:
+    Type: String
+    Description: S3 bucket for scripts
+  DynamoDBTableGlobalName:
+    Type: String
+    Description: DynamoDB table for global data
+  DynamoDBTableJobsName:
+    Type: String
+    Description: DynamoDB table for job data
+  StateMachineName:
+    Type: String
+    Description: Name of the Step Function state machine
+  StateMachineRoleName:
+    Type: String
+    Description: Role name for the Step Function
+  StateMachineTriggerRoleName:
+    Type: String
+  LambdaLandingName:
+    Type: String
+    Description: Lambda function name
+  LambdaLandingRoleName:
+    Type: String
+    Description: Lambda function role name
+  LambdaLandingUploadUNIXT:
+    Type: Number
+    Description: UNIX timestamp for Lambda code upload
+  SNSTopicName:
+    Type: String
+    Description: SNS Topic name
+
+Resources:
+  LambdaLandingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref LambdaLandingRoleName
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      
+
+  StateMachineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref StateMachineRoleName
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: states.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: "InvokeLambdaFunction"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: "Allow"
+                Action: "lambda:InvokeFunction"
+                Resource: !GetAtt AcademyLambdaLanding.Arn
+        - PolicyName: "PublishToSNSTopic"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: "Allow"
+                Action: "sns:Publish"
+                Resource: !Ref AcademySNSTopic
+        - PolicyName: "AccessDynamoDBTables"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "dynamodb:GetItem"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:UpdateItem"
+                  - "dynamodb:Query"
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoDBTableGlobalName}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoDBTableJobsName}"
+        - PolicyName: "AccessS3Buckets"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                Resource:
+                  - !Sub "arn:aws:s3:::${S3BucketData}/*"
+                  - !Sub "arn:aws:s3:::${S3BucketScripts}/*"    
+
+  StateMachineTriggerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref StateMachineTriggerRoleName
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      
+
+  AcademySNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Ref SNSTopicName
+      
+
+  AcademyLambdaLanding:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref LambdaLandingName
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LambdaLandingRole.Arn
+      Code:
+        S3Bucket: !Ref S3BucketScripts
+        S3Key: "lambda_function.zip"
+      Runtime: python3.9
+      MemorySize: 512
+      Timeout: 480
+      
+
+  AcademyStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Ref StateMachineName
+      DefinitionSubstitutions: 
+        LambdaARN: !GetAtt AcademyLambdaLanding.Arn
+      DefinitionS3Location: 
+        Bucket: meljuga-academy-scripts
+        Key: statemachine_definition.json
+      RoleArn: !GetAtt StateMachineRole.Arn
+      
+
+  AcademyStateMachineTrigger:
+    Type: AWS::Events::Rule
+    Properties:
+      State: ENABLED
+      RoleArn: !GetAtt StateMachineTriggerRole.Arn
+      Name: !Sub "${StateMachineName}-Trigger"
+      ScheduleExpression: "cron(0 6 * * ? *)"
+      Targets:
+        - Arn: !Ref AcademyStateMachine
+          Id: "CronEvent"
+          RoleArn: !GetAtt StateMachineTriggerRole.Arn
+      

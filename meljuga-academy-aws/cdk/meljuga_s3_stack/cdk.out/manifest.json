@@ -1,0 +1,132 @@
+{
+  "version": "17.0.0",
+  "artifacts": {
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    },
+    "meljuga-cdk-stack-task-2.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "meljuga-cdk-stack-task-2.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "meljuga-cdk-stack-task-2": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://456582705970/eu-central-1",
+      "properties": {
+        "templateFile": "meljuga-cdk-stack-task-2.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::456582705970:role/cdk-hnb659fds-deploy-role-456582705970-eu-central-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::456582705970:role/cdk-hnb659fds-cfn-exec-role-456582705970-eu-central-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-456582705970-eu-central-1/35486c777807dad8c1e3a0ea7a8c1d85b91136e66a2641e9cee87266a835fba1.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "meljuga-cdk-stack-task-2.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::456582705970:role/cdk-hnb659fds-lookup-role-456582705970-eu-central-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "meljuga-cdk-stack-task-2.assets"
+      ],
+      "metadata": {
+        "/meljuga-cdk-stack-task-2/meljuga-academy-s3-cdk/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademys3cdkE57CBB15"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/meljuga-academy-s3-cdk/Notifications/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademys3cdkNotifications4C880211"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/meljuga-academy-s3-cdk/AllowBucketNotificationsTomeljugacdkstacktask2meljugaacademylambdacdk01BDDF0C": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademys3cdkAllowBucketNotificationsTomeljugacdkstacktask2meljugaacademylambdacdk01BDDF0CD0C4AEB0"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/meljuga-academy-dynamodb-cdk": [
+          {
+            "type": "aws:cdk:hasPhysicalName",
+            "data": {
+              "Ref": "meljugaacademydynamodbcdk27AE4635"
+            }
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/meljuga-academy-dynamodb-cdk/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademydynamodbcdk27AE4635"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/meljuga-academy-lambda-cdk/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademylambdacdkServiceRoleE151AFC4"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/meljuga-academy-lambda-cdk/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademylambdacdkServiceRoleDefaultPolicy2E57E92D"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/meljuga-academy-lambda-cdk/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "meljugaacademylambdacdk4A82A113"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/BucketNotificationsHandler050a0587b7544547bf325f094a3db834/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/BucketNotificationsHandler050a0587b7544547bf325f094a3db834/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleDefaultPolicy2CF63D36"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/BucketNotificationsHandler050a0587b7544547bf325f094a3db834/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BucketNotificationsHandler050a0587b7544547bf325f094a3db8347ECC3691"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/meljuga-cdk-stack-task-2/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "meljuga-cdk-stack-task-2"
+    }
+  }
+}

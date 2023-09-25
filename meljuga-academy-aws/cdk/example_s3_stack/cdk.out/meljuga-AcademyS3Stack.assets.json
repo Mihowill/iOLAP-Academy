@@ -1,0 +1,20 @@
+{
+  "version": "17.0.0",
+  "files": {
+    "0b5fde71d0db256fb1c13774ff1fa9787f54d80ae0349bb6473913a98b12ea84": {
+      "source": {
+        "path": "meljuga-AcademyS3Stack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "456582705970-eu-central-1": {
+          "bucketName": "cdk-hnb659fds-assets-456582705970-eu-central-1",
+          "objectKey": "0b5fde71d0db256fb1c13774ff1fa9787f54d80ae0349bb6473913a98b12ea84.json",
+          "region": "eu-central-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::456582705970:role/cdk-hnb659fds-file-publishing-role-456582705970-eu-central-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

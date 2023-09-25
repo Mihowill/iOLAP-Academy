@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  S3BucketData:
+    Type: String
+  GlueJobName:
+    Type: String
+  GlueJobRoleName:
+    Type: String
+
+Resources:
+  GlueJobRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref GlueJobRoleName
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "glue.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: aspac-academy-final-glue-job-role
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - 's3:*'
+                  - 'glue:*'
+                Resource: '*'
+  GlueDatalakeJob:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: !Ref GlueJobName
+      Role: !Ref GlueJobRole
+      WorkerType: G.1X
+      NumberOfWorkers: 2
+      GlueVersion: '4.0'
+      Command:
+        Name: 'glueetl'
+        ScriptLocation: s3://awstronauts-academy-bucket/scripts/glue/glueetl.py
+      Timeout: 480

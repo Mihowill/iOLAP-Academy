@@ -1,0 +1,34 @@
+{
+  "version": "17.0.0",
+  "files": {
+    "8e929c82d3bba23ce0db3a47a28084e37ee20529e9649f0eaea421ea9028d897": {
+      "source": {
+        "path": "asset.8e929c82d3bba23ce0db3a47a28084e37ee20529e9649f0eaea421ea9028d897",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "456582705970-eu-central-1": {
+          "bucketName": "cdk-hnb659fds-assets-456582705970-eu-central-1",
+          "objectKey": "8e929c82d3bba23ce0db3a47a28084e37ee20529e9649f0eaea421ea9028d897.zip",
+          "region": "eu-central-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::456582705970:role/cdk-hnb659fds-file-publishing-role-456582705970-eu-central-1"
+        }
+      }
+    },
+    "35486c777807dad8c1e3a0ea7a8c1d85b91136e66a2641e9cee87266a835fba1": {
+      "source": {
+        "path": "meljuga-cdk-stack-task-2.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "456582705970-eu-central-1": {
+          "bucketName": "cdk-hnb659fds-assets-456582705970-eu-central-1",
+          "objectKey": "35486c777807dad8c1e3a0ea7a8c1d85b91136e66a2641e9cee87266a835fba1.json",
+          "region": "eu-central-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::456582705970:role/cdk-hnb659fds-file-publishing-role-456582705970-eu-central-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

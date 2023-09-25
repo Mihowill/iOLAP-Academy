@@ -1,0 +1,35 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Start Install"
+      - echo $(date)
+      - echo "Current Working Directory:" $(pwd)
+      - echo "End Install"
+
+  pre_build:
+    commands:
+      - echo "Start Pre-Build"
+      - echo "===============Uploading Lambda ZIP to S3==============="
+      - aws s3 cp ./resources/lambda/meljuga_lambda_code.zip s3://meljuga-academy-scripts/lambda_function.zip
+      - echo "================Uploading statemachine definition.json to S3====================="
+      - aws s3 cp ./resources/statemachine/definition.json s3://meljuga-academy-scripts/statemachine_definition.json
+      - echo "================Uploading Glue ETL script to S3======================"
+      - aws s3 cp ./resources/glue/meljuga-academy-glue-database/glueetl_datalake.py s3://meljuga-academy-scripts/glueetl_datalake.py
+
+  build:
+    commands:
+      - echo "Start Build"
+      - echo $(date)
+      - echo "===============Deploying DynamoDB Stack==============="
+      - aws cloudformation deploy --template-file cicd/dynamodb.yml --stack-name meljuga-academy-dynamodb-stack --parameter-overrides DynamoDBTableGlobalName=meljuga-academy-dynamodb-global DynamoDBTableJobsName=meljuga-academy-dynamodb-jobs --tags Owner=mihovil.eljuga@gmail.com 
+      - echo "===============Deploying S3 Stack==================="
+      - aws s3 sync ./resources/dynamodb s3://meljuga-academy-scripts
+      - echo "===============Deploying Lambda Function==============="
+      - aws cloudformation deploy --template-file cicd/lambda_function.yml --stack-name meljuga-academy-lambda-stack --parameter-overrides MeljugaLambdaFunctionParam=meljuga-academy-lambda-ingest  --tags Owner=mihovil.eljuga@gmail.com
+      - echo "===============Deploying StateMachine================"
+      - aws cloudformation deploy --template-file cicd/statemachine.yml --stack-name meljuga-academy-statemachine-stack --parameter-overrides S3BucketData=meljuga-academy-data S3BucketScripts=meljuga-academy-scripts DynamoDBTableGlobalName=meljuga-academy-dynamodb-global DynamoDBTableJobsName=meljuga-academy-dynamodb-jobs StateMachineName=meljuga-academy-statemachine StateMachineRoleName=meljuga-academy-statemachine-role StateMachineTriggerRoleName=meljuga-academy-statemachine-trigger-role LambdaLandingName=meljuga-academy-lambda-landing LambdaLandingRoleName=meljuga-academy-lambda-landing-role LambdaLandingUploadUNIXT=$(date +%s) SNSTopicName=meljuga-academy-sns --tags Owner=mihovil.eljuga@gmail.com --capabilities CAPABILITY_NAMED_IAM
+      - echo "===============Deploying Glue Stack================="
+      - aws cloudformation deploy --template-file cicd/glue.yml --stack-name meljuga-academy-glue-stack --parameter-overrides S3BucketData=meljuga-academy-data S3BucketScripts=meljuga-academy-scripts DynamoDBTableName=meljuga-academy-dynamodb-jobs GlueJobName=meljuga-academy-glue-job GlueJobRoleName=meljuga-academy-glue-job-role GlueDatabaseLandingName=meljuga-academy-glue-landing-db GlueDatabaseDatalakeName=meljuga-academy-glue-datalake-db GlueCrawlerLandingTriggerName=meljuga-academy-glue-crawler-landing-trigger GlueCrawlerLandingName=meljuga-academy-glue-crawler-landing GlueCrawlerDatalakeTriggerName=meljuga-academy-glue-crawler-datalake-trigger GlueCrawlerDatalakeName=meljuga-academy-glue-crawler-datalake GlueJobTriggerName=meljuga-academy-glue-job-trigger --tags Owner=mihovil.eljuga@gmail.com --capabilities CAPABILITY_NAMED_IAM
+      - echo "End Build"

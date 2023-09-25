@@ -1,0 +1,81 @@
+version: 0.2
+
+phases:
+  install:
+    description: "Install dependencies and set up the environment"
+    commands:
+      - echo "Start Install"
+      - echo "Date:" $(date)
+      - echo "Locatation:$(pwd)"
+      - ls -al
+      - echo "End Install"
+
+  pre_build:
+    commands:
+      - export S3_STACK_NAME="awstronauts-academy-stack-s3"
+      - export S3_BUCKET_NAME="awstronauts-academy-bucket"
+      - export OWNER_NAME="awstronauts"
+      - export GLUE_STACK_NAME="awstronauts-academy-stack-glue"
+      - export GLUE_JOB_NAME="awstronauts-academy-glue-job"
+      - export GLUE_JOB_ROLE_NAME="awstronauts-academy-glue-job-role"
+      - export LambdaUploadUNIXT=$(date +%s)
+      - export LambdaRedshiftDatalakeName="lambda_redshift_datalake"
+      - >
+        zip -r9j \
+          resources/lambda/lambda_redshift_datalake/$LambdaRedshiftDatalakeName.zip \
+          resources/lambda/lambda_redshift_datalake/lambda_redshift_datalake.py
+      - >
+        zip -r9j \
+          resources/lambda/lambda_sentiment/lambda.zip \
+          resources/lambda/lambda_sentiment/lambda.py
+    
+  build:
+    commands:
+      - set -x
+      - echo "Start Build"
+      - echo "=============== S3 Stack Deployment ==============="
+      - >
+        aws cloudformation deploy \
+          --template-file cicd/s3.yml \
+          --stack-name $S3_STACK_NAME \
+          --parameter-overrides \
+            DataS3BucketName=$S3_BUCKET_NAME \
+          --capabilities CAPABILITY_NAMED_IAM \
+          --no-fail-on-empty-changeset \
+          --tags Owner=$OWNER_NAME 
+      - echo "=============== S3 Stack Complete ================"
+
+
+      - echo "=============== Lambda Function Deployment =================="
+      - aws s3 sync resources/lambda/lambda_sentiment/ s3://$S3_BUCKET_NAME/lambda/${LambdaUploadUNIXT}/
+      - aws s3 sync resources/lambda/lambda_redshift_datalake/ s3://$S3_BUCKET_NAME/lambda/${LambdaUploadUNIXT}/
+      - >
+        aws cloudformation deploy \
+          --template-file cicd/lambda.yml \
+          --stack-name awstronauts-academy-stack-lambda \
+          --parameter-overrides \
+              LambdaUploadUNIXT=$LambdaUploadUNIXT \
+              LambdaFunctionName=awstronauts-academy-lambda \
+              LambdaFunctionRoleName=awstronauts-academy-lambda-role \
+              LambdaFunctionPolicyName=awstronauts-academy-lambda-policy \
+              LambdaFunctionRedshiftDatalakeName=awstronauts-academy-lambda-redshift-datalake \
+          --capabilities CAPABILITY_NAMED_IAM \
+          --no-fail-on-empty-changeset \
+          --tags Owner=$OWNER_NAME
+      - echo "=========== Lambda Function Complete =================="      
+      - aws s3 sync resources/glue/ s3://$S3_BUCKET_NAME/scripts/glue/
+
+
+      - echo "=============== Glue Stack Deployment ==============="
+      - >
+        aws cloudformation deploy \
+          --template-file cicd/glue.yml \
+          --stack-name $GLUE_STACK_NAME \
+          --parameter-overrides \
+            S3BucketData=$S3_BUCKET_NAME \
+            GlueJobName=$GLUE_JOB_NAME \
+            GlueJobRoleName=$GLUE_JOB_ROLE_NAME \
+          --capabilities CAPABILITY_NAMED_IAM \
+          --no-fail-on-empty-changeset \
+          --tags Owner=$OWNER_NAME
+      - echo "=============== Glue Stack Complete ==============="
